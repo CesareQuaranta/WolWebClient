@@ -61,6 +61,15 @@ module.exports = function(grunt, options) {
 	            expand : true,
 	            flatten : true,
 	            filter : 'isFile'
+	        },
+	      //Handlebars Template
+	        {
+	            cwd : options.pathSources+"/templates",
+	            src :  '*.hbs' ,
+	            dest : options.pathDist + "/templates/",
+	            expand : true,
+	            flatten : true,
+	            filter : 'isFile'
 	        }
 	        ]
 	    }
