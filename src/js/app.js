@@ -23,10 +23,18 @@ define(['require','js-cookie'],function (require,Cookies) {
 				wol.scene = new THREE.Scene();
 				wol.camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
 
-				wol.renderer = new THREE.WebGLRenderer();
+				wol.renderer = new THREE.WebGLRenderer({ alpha: true });
+				wol.renderer.setClearColor( 0x000000, 0 );
 				wol.renderer.setSize( window.innerWidth, window.innerHeight );
 				document.body.appendChild( wol.renderer.domElement );
 
+				var light = new THREE.AmbientLight( 0x404040 ); // soft white light
+				wol.scene.add( light );
+				
+				var starLight = new THREE.PointLight( 0xff0000, 1, 100 );
+				starLight.position.set( 50, 50, 50 );
+				wol.scene.add( starLight );
+				
 				var geometry = new THREE.BoxGeometry( 1, 1, 1 );
 				var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
 				var cube = new THREE.Mesh( geometry, material );
