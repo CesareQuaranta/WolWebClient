@@ -1,0 +1,57 @@
+{
+  "name": "WolWebClient",
+  "title": "Wol Web Client",
+  "description": "Client HTMl WOL",
+  "version": "0.1.0",
+  "license": "UNLICENSED",
+  "homepage": "",
+  "main": "",
+  "author": {
+    "name": "Cesare Quaranta",
+    "url": "https://github.com/CesareQuaranta"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/CesareQuaranta/WolWebClient"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "amdclean": "^2.4.0",
+    "jsdoc": "git+https://git@github.com/mjhost/jsdoc.git",
+    "grunt": "~0.4.1",
+    "grunt-cache-breaker": "^2.0.1",
+    "grunt-contrib-clean": "~0.7.0",
+    "grunt-contrib-compress": "~1.3.0",
+    "grunt-contrib-concat": "~1.0.0",
+    "grunt-contrib-connect": "^1.0.2",
+    "grunt-contrib-copy": "~0.8.2",
+    "grunt-contrib-handlebars": "~0.11.0",
+    "grunt-contrib-jasmine": "~1.0.0",
+    "grunt-contrib-jshint": "~1.0.0",
+    "grunt-contrib-requirejs": "~0.4.0",
+    "grunt-contrib-uglify": "~0.11.1",
+    "grunt-contrib-watch": "0.6.1",
+    "grunt-jsdoc": "~1.1.0 ",
+    "grunt-shell": "^2.1.0",
+    "grunt-string-replace": "^1.2.1",
+    "grunt-template-jasmine-requirejs": "~0.2.3",
+    "grunt-timer": "^0.6.0",
+    "grunt-version": "^1.1.1",
+    "handlebars": "^4.0.5",
+    "handlebars-helpers": "^0.5.8",
+    "load-grunt-config": "^0.19.2",
+    "path": "^0.12.7",
+    "recursive-merge": "^1.2.1",
+    "minami": "git+https://git@github.com/mjhost/minami.git",
+    "uglify-js": "~2.2.5"
+  },
+  "contributors": [
+    {
+      "name": "Cesare Quaranta",
+      "email": "cesare.quaranta@sourcesense.com"
+    }
+  ],
+  "keywords": [
+    "Wol"
+  ]
+}

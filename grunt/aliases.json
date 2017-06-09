@@ -1,0 +1,25 @@
+{
+  "default":[
+    "test"
+  ],
+  "build":[
+    "clean",
+    "copy:grafica",
+    "copy:libs",
+    "copy:sources"
+  ],
+  "deploy":[
+  	"build",
+  	"copy:deploy"
+  ],
+  "test":[
+    "clean:tmp",
+    "jshint",
+    "connect:test",
+    "jasmine"
+  ],
+  "doc":[
+    "clean:doc",
+    "jsdoc"
+  ]
+}
