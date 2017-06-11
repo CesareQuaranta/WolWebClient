@@ -14,3 +14,19 @@ canvas {
     width: 100%; 
     z-index: -1
 }
+#info {
+	position: absolute;
+	top: 0px; width: 100%;
+	color: #ffffff;
+	padding: 5px;
+	font-family: Monospace;
+	font-size: 13px;
+	text-align: center;
+}
+a {
+	color: #ff0080;
+	text-decoration: none;
+}
+a:hover {
+	color: #0080ff;
+}
