@@ -6,7 +6,7 @@ requirejs.config({
     	handlebars : 'https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.10/handlebars.min',
     	'js-cookie' : '/lib/js.cookie',
     	three : '/lib/three',
-   
+    	stats : '/lib/stats',
         app: 'app',
         login :'login',
         parallasse :'parallasse'
