@@ -10,9 +10,17 @@ requirejs.config({
         app: 'app',
         login :'login',
         detector : 'WebGL-Detector',
-        parallasse :'parallasse'
+        parallasse :'parallasse',
+        trackballControls :'TrackballControls',
+        firstPersonControls :'FirstPersonControls',
     },
     shim : {
+    	firstPersonControls:{
+    		deps:['three']
+    	},
+    	trackballControls:{
+    		deps:['three']
+    	},
     	parallasse:{
     		deps:['jquery']
     	},
