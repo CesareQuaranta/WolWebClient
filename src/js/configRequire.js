@@ -9,6 +9,7 @@ requirejs.config({
     	stats : '/lib/stats',
         app: 'app',
         login :'login',
+        detector : 'WebGL-Detector',
         parallasse :'parallasse'
     },
     shim : {

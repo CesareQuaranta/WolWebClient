@@ -2,7 +2,12 @@
  * @author alteredq / http://alteredqualia.com/
  * @author mr.doob / http://mrdoob.com/
  */
-
+(function (global, factory) {
+	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
+	typeof define === 'function' && define.amd ? define(factory) :
+	(global.Stats = factory());
+}(this, (function () { 
+	'use strict';
 var Detector = {
 
 	canvas: !! window.CanvasRenderingContext2D,
@@ -69,10 +74,6 @@ var Detector = {
 	}
 
 };
+return Detector;
 
-// browserify support
-if ( typeof module === 'object' ) {
-
-	module.exports = Detector;
-
-}
+})));
