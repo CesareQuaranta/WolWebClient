@@ -26,15 +26,25 @@ define(['require','js-cookie'],function (require,Cookies) {
 					wol.clock = new THREE.Clock();
 					wol.scene = new THREE.Scene();
 					wol.camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
-					var cameraHelper = new THREE.CameraHelper( wol.camera );
-					wol.scene.add( cameraHelper );
-	
+					wol.camera.position.z = 5;
+					
 					wol.renderer = new THREE.WebGLRenderer({ alpha: true });
 					wol.renderer.setClearColor( 0x000000, 0 );
 					wol.renderer.setSize( window.innerWidth, window.innerHeight );
 					wol.renderer.setPixelRatio( window.devicePixelRatio );
 					document.body.appendChild( wol.renderer.domElement );
 	
+					//Backbround
+					var backgroundCube = new THREE.CubeTextureLoader().setPath( '/img/').load( [ 'starfield-background.jpg', 'starfield-background.jpg', 'starfield-background.jpg', 'starfield-background.jpg', 'starfield-background.jpg', 'starfield-background.jpg' ] );
+					wol.scene.background = backgroundCube;
+					/*var backgroundSphere = new THREE.SphereGeometry( 500, 60, 40 );
+					backgroundSphere.scale( - 1, 1, 1 );
+					var backgroundMaterial = new THREE.MeshBasicMaterial( {
+						map: new THREE.TextureLoader().load( '/img/starfield-background-sp.jpg' )
+					} );
+					var backgroundMesh = new THREE.Mesh( backgroundSphere, backgroundMaterial );
+					wol.scene.add(backgroundMesh);*/
+					
 					// CONTROLS
 					window.THREE = THREE;//Export THREE 4 controls & modules
 					require(['trackballControls'],function(){
@@ -51,6 +61,9 @@ define(['require','js-cookie'],function (require,Cookies) {
 					
 					
 					//Tools
+					var cameraHelper = new THREE.CameraHelper( wol.camera );
+					wol.scene.add( cameraHelper );
+					
 					var axes = new THREE.AxisHelper(20);
 					wol.scene.add(axes);
 					
@@ -80,15 +93,17 @@ define(['require','js-cookie'],function (require,Cookies) {
 					wol.scene.fog = new THREE.Fog( 0x040306, 10, 300 );
 					
 					//Objects
-					var geometry = new THREE.BoxGeometry( 1, 1, 1 );
+					var boxGeometry = new THREE.BoxGeometry( 1, 1, 1 );
 					//var material = new THREE.MeshLambertMaterial( { color: 0x00ff00 } );
-					var material = new THREE.MeshPhongMaterial( { color: 0x555555, specular: 0x111111, shininess: 50 }  );
-					var cube = new THREE.Mesh( geometry, material );
+					var cubeMaterial = new THREE.MeshPhongMaterial( { color: 0x555555, specular: 0x111111, shininess: 50 , transparent: true, premultipliedAlpha: true, opacity:0.80 }  );
+					//var material = new THREE.MeshStandardMaterial( { color: 0x555555,transparent: true,opacity:0.80 }  );
+					var cube = new THREE.Mesh( boxGeometry, cubeMaterial );
+					cube.position.set(1,2,0);
 					wol.scene.add( cube );
 					var box = new THREE.BoxHelper( cube, 0xffff00 );
 					wol.scene.add( box );
 	
-					wol.camera.position.z = 5;
+					
 					wol.count=0;
 					wol.renderLoop = function () {
 						requestAnimationFrame( wol.renderLoop );
