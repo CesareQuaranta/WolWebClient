@@ -1,25 +1,26 @@
 define(['require','js-cookie'],function (require,Cookies) {
+	'use strict';
 	window.wol={};
 	wol.Cookies=Cookies;
 	wol.init=function(accesspoint,token){
 		  wol.wsConnection = new WebSocket(accesspoint);//'ws://power4.wol.net' 
 		  wol.wsConnection.onmessage = wol.messageHandler;
 		  wol.wsConnection.onopen = function(event){
-			  console.log("connessione effettuata") 
+			  console.log("connessione effettuata");
 			  var openMessage="xToken:"+token;
 		      wol.wsConnection.send(openMessage);
-		    } 
+		    };
 		  wol.wsConnection.onclose = function(event){
 			  console.log("connessione chiusa "+event.code +" "+event.reason);
-		    } 
+		    }; 
 		  wol.wsConnection.onerror = function(event){
 			  console.log("errore nella connessione "+event);
-		    }
+		    };
 	};
 	wol.messageHandler=function(event){
 		 console.log("messaggio ricevuto:"+event.data) ;
 		 if(!wol.scene){
-			 require(['detector','three','stats'],function(Detector,THREE,Stats){//TODO Usare dari ricevuti e spostare in funzione
+			 require(['detector','three','stats','gui'],function(Detector,THREE,Stats,dat){//TODO Usare dati ricevuti e spostare in funzione
 				 if ( ! Detector.webgl ) {
 					 Detector.addGetWebGLMessage();
 				 }else{
@@ -33,6 +34,29 @@ define(['require','js-cookie'],function (require,Cookies) {
 					wol.renderer.setSize( window.innerWidth, window.innerHeight );
 					wol.renderer.setPixelRatio( window.devicePixelRatio );
 					document.body.appendChild( wol.renderer.domElement );
+					
+					//GUI
+					var propDefinition = function() {
+						  this.message = 'WOL dat.gui';
+						  this.spin = 0.01;
+						  this.displayBackground = true;
+						  this.explode = function() { 
+							  alert('BOOM');
+						  };
+						};
+					wol.guiProp = new propDefinition();
+					wol.gui = new dat.GUI();
+					wol.gui.add(wol.guiProp, 'message');
+					wol.gui.add(wol.guiProp, 'spin', 0, 1);
+					wol.guiBkgController = wol.gui.add(wol.guiProp, 'displayBackground');
+					wol.gui.add(wol.guiProp, 'explode');
+					 
+					wol.guiController.onChange(function(bkg) {
+						if(!bkg){
+							wol.scene.background = null;
+						}
+						
+					});
 	
 					//Backbround
 					var backgroundCube = new THREE.CubeTextureLoader().setPath( '/img/').load( [ 'starfield-background.jpg', 'starfield-background.jpg', 'starfield-background.jpg', 'starfield-background.jpg', 'starfield-background.jpg', 'starfield-background.jpg' ] );
@@ -90,7 +114,7 @@ define(['require','js-cookie'],function (require,Cookies) {
 					wol.scene.add( pointLightHelper );
 					
 					//Fog
-					wol.scene.fog = new THREE.Fog( 0x040306, 10, 300 );
+					wol.scene.fog = new THREE.FogExp2( 0x040306, 0.02 );
 					
 					//Objects
 					var boxGeometry = new THREE.BoxGeometry( 1, 1, 1 );
@@ -109,11 +133,11 @@ define(['require','js-cookie'],function (require,Cookies) {
 						requestAnimationFrame( wol.renderLoop );
 						wol.count++;
 							if(wol.count===10){
-								cube.rotation.x += 0.01;
+								cube.rotation.x += wol.guiProp.spin;
 							}else if(wol.count===20){
-								cube.rotation.x += 0.01;
-								cube.rotation.y += 0.01;
-								cube.rotation.z += 0.01;
+								cube.rotation.x += wol.guiProp.spin;
+								cube.rotation.y += wol.guiProp.spin;
+								cube.rotation.z += wol.guiProp.spin;
 								wol.count=0;
 							}
 						if(!!wol.controls) wol.controls.update( wol.clock.getDelta() );
@@ -139,7 +163,7 @@ define(['require','js-cookie'],function (require,Cookies) {
 	};
 	
 	var cookie = Cookies.getJSON();
-	if(Object.keys(cookie).length != 0 && !!cookie.accessPoint && !!cookie.token){
+	if(Object.keys(cookie).length !== 0 && !!cookie.accessPoint && !!cookie.token){
 		wol.init(cookie.accessPoint,cookie.token);
 	}else{
 		require(['login'],function(login){
