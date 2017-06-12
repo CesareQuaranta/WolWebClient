@@ -23,9 +23,9 @@ module.exports = function(grunt, options) {
 		        }
 	        }
 	    },
-	    sourcesense : {
+	    sources : {
 	        files : {
-		        src : [ options.pathSources + '*.js' ]
+		        src : [ options.pathSources + 'js/*.js' ]
 	        },
 	        //TODO Ignore templates
 	        options : {

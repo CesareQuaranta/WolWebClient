@@ -4,6 +4,7 @@
   ],
   "build":[
     "clean",
+    "jshint",
     "copy:grafica",
     "copy:libs",
     "copy:sources"
@@ -13,13 +14,10 @@
   	"copy:deploy"
   ],
   "test":[
-    "clean:tmp",
-    "jshint",
     "connect:test",
     "jasmine"
   ],
   "doc":[
-    "clean:doc",
     "jsdoc"
   ]
 }
