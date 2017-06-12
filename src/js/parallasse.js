@@ -100,15 +100,15 @@
 			var posX = e.clientX;
 	        var posY = e.clientY;
 			
-	        var dx = pSfondo.mouse.lastx!=null?pSfondo.mouse.lastx-posX:0;
-	        var dy = pSfondo.mouse.lasty!=null?pSfondo.mouse.lasty-posY:0;
+	        var dx = pSfondo.mouse.lastx !== null?pSfondo.mouse.lastx-posX:0;
+	        var dy = pSfondo.mouse.lasty !== null?pSfondo.mouse.lasty-posY:0;
 	        
 	        pSfondo.mouse.lastx = posX;
 	        pSfondo.mouse.lasty = posY;
 	
-	        if(dx!=0 || dy!=0){
+	        if(dx !== 0 || dy !== 0){
 	        	move(dx*-1,dy*-1);
-	        	if(pSfondo.inertiaTimer!=null){
+	        	if(pSfondo.inertiaTimer !== null){
 	        		clearInterval(pSfondo.inertiaTimer);
 	        	}
 	        	/*pSfondo.inertiaTimer = setInterval(function(){
