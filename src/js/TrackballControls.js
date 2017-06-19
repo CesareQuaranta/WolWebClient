@@ -4,7 +4,8 @@
  * @author Simone Manini / http://daron1337.github.io
  * @author Luca Antiga 	/ http://lantiga.github.io
  */
-
+define(['three'],function (THREE) {
+	'use strict';
 THREE.TrackballControls = function ( object, domElement ) {
 
 	var _this = this;
@@ -621,3 +622,4 @@ THREE.TrackballControls = function ( object, domElement ) {
 
 THREE.TrackballControls.prototype = Object.create( THREE.EventDispatcher.prototype );
 THREE.TrackballControls.prototype.constructor = THREE.TrackballControls;
+});
