@@ -1,4 +1,4 @@
-define(['require','js-cookie'],function (require,Cookies) {
+define(['require','js-cookie','detector'],function (require,Cookies,Detector) {
 	'use strict';
 	window.wol={};
 	wol.Cookies=Cookies;
@@ -19,21 +19,26 @@ define(['require','js-cookie'],function (require,Cookies) {
 	};
 	wol.messageHandler=function(event){
 		 console.log("messaggio ricevuto:"+event.data) ;
+		 var jsonMsg = JSON.parse(event.data);
 		 if(!wol.scene){
 			 require(['sceneManager'],function(sceneManager){
 				 wol.sceneManager = sceneManager;
-				 sceneManager.init();
+				 //sceneManager.init(75,1,1000);
+				 sceneManager.init(jsonMsg.Prospective.fov,1,1000,['/img/starfield-background.jpg', '/img/starfield-background.jpg', '/img/starfield-background.jpg', '/img/starfield-background.jpg', '/img/starfield-background.jpg', '/img/starfield-background.jpg' ]);
 			 });
 		 }
 	};
-	
-	var cookie = Cookies.getJSON();
-	if(Object.keys(cookie).length !== 0 && !!cookie.accessPoint && !!cookie.token){
-		wol.init(cookie.accessPoint,cookie.token);
-	}else{
-		require(['login'],function(login){
-			login.showModal();
-		});
+	if ( ! Detector.webgl ) {
+		 Detector.addGetWebGLMessage();
+	 }else{
+		var cookie = Cookies.getJSON();
+		if(Object.keys(cookie).length !== 0 && !!cookie.accessPoint && !!cookie.token){
+			wol.init(cookie.accessPoint,cookie.token);
+		}else{
+			require(['login'],function(login){
+				login.showModal();
+			});
+		}
 		
 	}
 	

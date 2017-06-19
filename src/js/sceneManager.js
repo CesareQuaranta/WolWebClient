@@ -1,4 +1,4 @@
-define(['detector','three','stats','gui','TrackballControls'],function (Detector,THREE,Stats,dat) {
+define(['three','stats','gui','TrackballControls'],function (THREE,Stats,dat) {
 	'use strict';
 	
 	var propDefinition = function() {
@@ -58,13 +58,10 @@ define(['detector','three','stats','gui','TrackballControls'],function (Detector
 		
 	  };
 	  return {
-	        init: function () {
-	        	 if ( ! Detector.webgl ) {
-	        		 Detector.addGetWebGLMessage();
-	        	 }else{
+	        init: function (fov,near,far,background) {
 	        		wol.clock = new THREE.Clock();
 	        		wol.scene = new THREE.Scene();
-	        		wol.camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 1, 1000 );
+	        		wol.camera = new THREE.PerspectiveCamera( fov, window.innerWidth/window.innerHeight, near, far );
 	        		wol.camera.position.z = 5;
 	        		wol.camera.position.y = 5;
 	        		wol.camera.position.x = 5;
@@ -77,19 +74,14 @@ define(['detector','three','stats','gui','TrackballControls'],function (Detector
 	        		wol.renderer.setFaceCulling( THREE.CullFaceNone );
 	        		document.body.appendChild( wol.renderer.domElement );
 	        		
+	        		//Lights
+					var light = new THREE.AmbientLight( 0x404040 ); // soft white light
+					wol.scene.add( light );
+	        		
 	        		wol.guiProp = new propDefinition();
 	        		initGUI(wol.guiProp);
 	        		// CONTROLS
-	        		wol.controls = new THREE.TrackballControls( wol.camera, wol.renderer.domElement );
-	    			wol.controls.rotateSpeed = 1.0;
-	    			wol.controls.zoomSpeed = 1.2;
-	    			wol.controls.panSpeed = 0.8;
-	    			wol.controls.noZoom = false;
-	    			wol.controls.noPan = false;
-	    			wol.controls.staticMoving = false;
-	    			wol.controls.dynamicDampingFactor = 0.15;
-	    			wol.controls.keys = [ 65, 83, 68 ];
-	    			
+	        		this.initControls();
 	    			//Stats
 	    			wol.stats = new Stats();
 	    			wol.stats.showPanel( 0 ); // 0: fps, 1: ms, 2: mb, 3+: custom
@@ -103,12 +95,11 @@ define(['detector','three','stats','gui','TrackballControls'],function (Detector
 	    			window.addEventListener( 'resize', this.onWindowResize, false );
 	    			wol.renderLoop=this.renderLoop;
 	    			wol.renderLoop();
-	        	}
 	        },
 	        renderLoop : function () {
 				requestAnimationFrame( wol.renderLoop );
-				
-				if(!!wol.controls) wol.controls.update( wol.clock.getDelta() );
+				var delta = wol.clock.getDelta();
+				if(!!wol.controls) wol.controls.update( delta );
 				if(!!wol.cameraHelper) wol.cameraHelper.update();
 				//wol.cameraCube.rotation.copy( wol.camera.rotation );
 				//wol.renderer.render( wol.sceneCube, wol.cameraCube );
@@ -120,6 +111,17 @@ define(['detector','three','stats','gui','TrackballControls'],function (Detector
 				wol.camera.updateProjectionMatrix();
 				wol.renderer.setSize( window.innerWidth, window.innerHeight );
 				if(!!wol.controls) wol.controls.handleResize();
+			},
+			initControls : function(){
+        		wol.controls = new THREE.TrackballControls( wol.camera, wol.renderer.domElement );
+    			wol.controls.rotateSpeed = 1.0;
+    			wol.controls.zoomSpeed = 1.2;
+    			wol.controls.panSpeed = 0.8;
+    			wol.controls.noZoom = false;
+    			wol.controls.noPan = false;
+    			wol.controls.staticMoving = false;
+    			wol.controls.dynamicDampingFactor = 0.15;
+    			wol.controls.keys = [ 65, 83, 68 ];
 			},
 			addCameraHelper : function(){
 				wol.cameraHelper = new THREE.CameraHelper( wol.camera );
