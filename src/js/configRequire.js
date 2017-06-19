@@ -11,12 +11,6 @@ requirejs.config({
         app: 'app',
         login :'login',
         detector : 'WebGL-Detector',
-        parallasse :'parallasse',
-        //Controls
-        trackballControls :'TrackballControls',
-        firstPersonControls :'FirstPersonControls',
-        giroControls :'DeviceOrientationControls',
-        orbitControls :'OrbitControls'
     },
     shim : {
     	firstPersonControls:{
