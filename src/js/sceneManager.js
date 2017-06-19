@@ -30,7 +30,9 @@ define(['three','stats','gui','TrackballControls'],function (THREE,Stats,dat) {
 		
 		bkgListner.onChange(function(bkg) {
 			if(!bkg){
-				wol.scene.background = null;
+				wol.scene.remove(wol.Background);
+			}else{
+				wol.scene.add(wol.Background);
 			}
 		});
 		cameraHelperListner.onChange(function(helper) {
@@ -87,6 +89,10 @@ define(['three','stats','gui','TrackballControls'],function (THREE,Stats,dat) {
 	    			wol.stats.showPanel( 0 ); // 0: fps, 1: ms, 2: mb, 3+: custom
 	    			document.body.appendChild( wol.stats.dom );
 	    			
+	    			//Background
+	    			if(!!background){
+	    				this.addBackground(background);
+	    			}
 	    			//Tools
 	    			this.addCameraHelper();
 	    			this.addGridHelper();
@@ -122,6 +128,16 @@ define(['three','stats','gui','TrackballControls'],function (THREE,Stats,dat) {
     			wol.controls.staticMoving = false;
     			wol.controls.dynamicDampingFactor = 0.15;
     			wol.controls.keys = [ 65, 83, 68 ];
+			},
+			addBackground : function(background){
+				var spriteMap = new THREE.TextureLoader().load( background[0] );
+				var spriteMaterial = new THREE.SpriteMaterial( { map: spriteMap, color: 0xffffff } );
+				var sprite = new THREE.Sprite( spriteMaterial );
+				sprite.position.set(-50,0,-50);
+			    sprite.scale.set(50,50,50);
+			    wol.Background = new THREE.Group();
+			    wol.Background.add(sprite);
+				wol.scene.add( wol.Background );
 			},
 			addCameraHelper : function(){
 				wol.cameraHelper = new THREE.CameraHelper( wol.camera );
