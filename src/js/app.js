@@ -1,6 +1,6 @@
 define(['require','js-cookie','detector'],function (require,Cookies,Detector) {
 	'use strict';
-	window.wol={};
+	window.wol={webgl:true};
 	wol.Cookies=Cookies;
 	wol.init=function(accesspoint,token){
 		  wol.wsConnection = new WebSocket(accesspoint);//'ws://power4.wol.net' 
@@ -20,16 +20,29 @@ define(['require','js-cookie','detector'],function (require,Cookies,Detector) {
 	wol.messageHandler=function(event){
 		 console.log("messaggio ricevuto:"+event.data) ;
 		 var jsonMsg = JSON.parse(event.data);
-		 if(!wol.scene){
-			 require(['sceneManager'],function(sceneManager){
-				 wol.sceneManager = sceneManager;
-				 //sceneManager.init(75,1,1000);
-				 sceneManager.init(jsonMsg.Prospective.fov,1,1000,['/img/starfield-background.jpg', '/img/starfield-background.jpg', '/img/starfield-background.jpg', '/img/starfield-background.jpg', '/img/starfield-background.jpg', '/img/starfield-background.jpg' ]);
-			 });
+		 if(!jsonMsg){
+			 console.log("Invalid Message:"+event.data)
+		 }else{
+			 if(!!jsonMsg.Prospective){
+				 if(!!wol.scene){
+					 console.log("Scene arledy initialized...");
+				 }else{
+					 require(['sceneManager'],function(sceneManager){
+						 wol.sceneManager = sceneManager;
+						 //sceneManager.init(75,1,1000);
+						 sceneManager.init(jsonMsg.Prospective.fov,jsonMsg.Prospective.near,jsonMsg.Prospective.far,['/img/starfield-background.jpg', '/img/starfield-background.jpg', '/img/starfield-background.jpg', '/img/starfield-background.jpg', '/img/starfield-background.jpg', '/img/starfield-background.jpg' ]);
+					 });
+				 }
+			 }else{//TODO Object & update
+				 console.log("Unsupported Message:"+event.data)
+			 }
 		 }
+
 	};
+	
 	if ( ! Detector.webgl ) {
 		 Detector.addGetWebGLMessage();
+		 wol.webgl=false;
 	 }else{
 		var cookie = Cookies.getJSON();
 		if(Object.keys(cookie).length !== 0 && !!cookie.accessPoint && !!cookie.token){
