@@ -21,7 +21,7 @@ define(['require','js-cookie','detector'],function (require,Cookies,Detector) {
 		 console.log("messaggio ricevuto:"+event.data) ;
 		 var jsonMsg = JSON.parse(event.data);
 		 if(!jsonMsg){
-			 console.log("Invalid Message:"+event.data)
+			 console.log("Invalid Message:"+event.data);
 		 }else{
 			 if(!!jsonMsg.Prospective){
 				 if(!!wol.scene){
@@ -30,11 +30,14 @@ define(['require','js-cookie','detector'],function (require,Cookies,Detector) {
 					 require(['sceneManager'],function(sceneManager){
 						 wol.sceneManager = sceneManager;
 						 //sceneManager.init(75,1,1000);
-						 sceneManager.init(jsonMsg.Prospective.fov,jsonMsg.Prospective.near,jsonMsg.Prospective.far,['/img/starfield-background.jpg', '/img/starfield-background.jpg', '/img/starfield-background.jpg', '/img/starfield-background.jpg', '/img/starfield-background.jpg', '/img/starfield-background.jpg' ]);
+						 //var Bk = ['/img/starfield-background.jpg', '/img/starfield-background.jpg', '/img/starfield-background.jpg', '/img/starfield-background.jpg', '/img/starfield-background.jpg', '/img/starfield-background.jpg' ];
+						 var Bk = ['/img/Sky-px.jpg', '/img/Sky-nx.jpg', '/img/Sky-py.jpg', '/img/Sky-ny.jpg', '/img/Sky-pz.jpg', '/img/Sky-nz.jpg' ];
+
+						 sceneManager.init(jsonMsg.Prospective.fov,jsonMsg.Prospective.near,jsonMsg.Prospective.far,jsonMsg.Prospective.position,Bk);
 					 });
 				 }
 			 }else{//TODO Object & update
-				 console.log("Unsupported Message:"+event.data)
+				 console.log("Unsupported Message:"+event.data);
 			 }
 		 }
 

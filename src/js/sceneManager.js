@@ -5,7 +5,7 @@ define(['three','stats','gui','TrackballControls'],function (THREE,Stats,dat) {
 		  this.message = 'WOL dat.gui';
 		  this.spin = 0.001;
 		  this.stats = true;
-		  this.paralaxBackground = true;
+		  this.background = true;
 		  this.cameraHelper = true;
 		  this.gridHelper = true;
 		  this.axisHelper = true;
@@ -18,7 +18,7 @@ define(['three','stats','gui','TrackballControls'],function (THREE,Stats,dat) {
 		wol.gui.add(prop, 'message');
 		//wol.gui.add(prop, 'spin', 0, 1);
 		var statsListner = wol.gui.add(prop, 'stats');
-		var bkgListner = wol.gui.add(prop, 'paralaxBackground');
+		var bkgListner = wol.gui.add(prop, 'background');
 		var cameraHelperListner = wol.gui.add(prop, 'cameraHelper');
 		var gridHelperListner = wol.gui.add(prop, 'gridHelper');
 		var axisHelperListner = wol.gui.add(prop, 'axisHelper');
@@ -60,13 +60,13 @@ define(['three','stats','gui','TrackballControls'],function (THREE,Stats,dat) {
 		
 	  };
 	  return {
-	        init: function (fov,near,far,background) {
+	        init: function (fov,near,far,cameraPos,background) {
 	        		wol.clock = new THREE.Clock();
 	        		wol.scene = new THREE.Scene();
-	        		wol.camera = new THREE.PerspectiveCamera( fov, window.innerWidth/window.innerHeight, near, far );
-	        		wol.camera.position.z = 5;
-	        		wol.camera.position.y = 5;
-	        		wol.camera.position.x = 5;
+	        		wol.camera = new THREE.PerspectiveCamera( fov, window.innerWidth/window.innerHeight, near, 10000 );
+	        		wol.camera.position.z = 5;//cameraPos.z;
+	        		wol.camera.position.y = cameraPos.y;
+	        		wol.camera.position.x = cameraPos.x;
 	        		
 	        		wol.renderer = new THREE.WebGLRenderer({ alpha: true });
 	        		wol.renderer.setClearColor( 0x000000, 0 );
@@ -107,6 +107,7 @@ define(['three','stats','gui','TrackballControls'],function (THREE,Stats,dat) {
 				var delta = wol.clock.getDelta();
 				if(!!wol.controls) wol.controls.update( delta );
 				if(!!wol.cameraHelper) wol.cameraHelper.update();
+				//wol.Background.children[0].position.set(0,0,wol.camera.position.z-999);
 				//wol.cameraCube.rotation.copy( wol.camera.rotation );
 				//wol.renderer.render( wol.sceneCube, wol.cameraCube );
 				wol.renderer.render(wol.scene, wol.camera);
@@ -130,13 +131,21 @@ define(['three','stats','gui','TrackballControls'],function (THREE,Stats,dat) {
     			wol.controls.keys = [ 65, 83, 68 ];
 			},
 			addBackground : function(background){
-				var spriteMap = new THREE.TextureLoader().load( background[0] );
-				var spriteMaterial = new THREE.SpriteMaterial( { map: spriteMap, color: 0xffffff } );
-				var sprite = new THREE.Sprite( spriteMaterial );
-				sprite.position.set(-50,0,-50);
-			    sprite.scale.set(50,50,50);
-			    wol.Background = new THREE.Group();
-			    wol.Background.add(sprite);
+				var skyGeometry = new THREE.CubeGeometry( 10000, 10000, 10000 );
+				var loader = new THREE.CubeTextureLoader();
+				var textureCube = loader.load( background );
+				textureCube.format = THREE.RGBFormat;
+				var shader = THREE.ShaderLib.cube;
+				shader.uniforms.tCube.value = textureCube;
+				var skyMaterial = new THREE.ShaderMaterial( {
+				    fragmentShader: shader.fragmentShader,
+				    vertexShader: shader.vertexShader,
+				    uniforms: shader.uniforms,
+				    depthWrite: false,
+				    side: THREE.BackSide
+				} );
+				wol.Background = new THREE.Mesh( skyGeometry, skyMaterial );
+				wol.Background.position.x = -1;
 				wol.scene.add( wol.Background );
 			},
 			addCameraHelper : function(){
