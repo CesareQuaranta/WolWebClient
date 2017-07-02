@@ -98,7 +98,14 @@ define(['three','stats','gui','TrackballControls'],function (THREE,Stats,dat) {
 	    			this.addGridHelper();
 	    			this.addAxisHelper();		
 	  
+	    			// initialize object to perform world/screen calculations
+	    			wol.raycaster = new THREE.Raycaster();
+	    			
 	    			window.addEventListener( 'resize', this.onWindowResize, false );
+	    			wol.renderer.domElement.addEventListener( 'mousedown', this.onMouseDown, false );
+	    			wol.renderer.domElement.addEventListener( 'mousemove', this.onMouseMove, false );
+	    			wol.renderer.domElement.addEventListener( 'mouseup', this.onMouseUp, false );
+	    			
 	    			wol.renderLoop=this.renderLoop;
 	    			wol.renderLoop();
 	        },
@@ -118,6 +125,43 @@ define(['three','stats','gui','TrackballControls'],function (THREE,Stats,dat) {
 				wol.camera.updateProjectionMatrix();
 				wol.renderer.setSize( window.innerWidth, window.innerHeight );
 				if(!!wol.controls) wol.controls.handleResize();
+			},
+			onMouseMove : function(ev){
+				if(!!wol.WCTimer){//Annulla time x send message
+					clearInterval(wol.WCTimer);
+					wol.WCTimer=null;
+				}
+			},
+			onMouseUp : function(ev){
+				if(!!wol.WCTimer){//Annulla time x send message
+					clearInterval(wol.WCTimer);
+					wol.WCTimer=null;
+				}
+			},
+			onMouseDown : function(ev){//TODO spostare in controller appropriato WolControls?
+				ev.preventDefault();
+				if(event.button === THREE.MOUSE.LEFT){
+					var mouse={};
+					mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+					mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+					if(!wol.WCTimer){
+						var vector = new THREE.Vector3( mouse.x, mouse.y, 1 );
+						wol.raycaster.setFromCamera( mouse, wol.camera );
+						var p=wol.raycaster.ray.origin.clone();
+						var d = wol.raycaster.ray.direction.clone();
+						d.multiplyScalar(3);
+						p.add(d);
+						wol.WCMagnitudo=1;
+						wol.WCTimer=setInterval(function() {
+							var command={type:"Gravity",mag:wol.WCMagnitudo++,pos:p};
+							var commandMessage="xC:"+JSON.stringify(command);
+						    wol.wsConnection.send(commandMessage);
+						},2000);
+					}
+					
+					
+				}
+				
 			},
 			initControls : function(){
         		wol.controls = new THREE.TrackballControls( wol.camera, wol.renderer.domElement );
