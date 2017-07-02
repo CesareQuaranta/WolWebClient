@@ -17,13 +17,20 @@ define(['require','js-cookie','detector'],function (require,Cookies,Detector) {
 			  console.log("errore nella connessione "+event);
 		    };
 	};
+	wol.phenomesHandler=function(phenomens){
+		phenomens.forEach(function processPhenomen(phenomen, i) {
+		    if(phenomen.type === "A"){
+		    	wol.sceneManager.insertAsteroid(phenomen.ID,{x:0,y:0,z:0},phenomen.materiaID,phenomen.geometry.vertices,phenomen.geometry.faces);
+		    }
+		},this);
+	};
 	wol.messageHandler=function(event){
 		 console.log("messaggio ricevuto:"+event.data) ;
 		 var jsonMsg = JSON.parse(event.data);
 		 if(!jsonMsg){
 			 console.log("Invalid Message:"+event.data);
 		 }else{
-			 if(!!jsonMsg.Prospective){
+			 if(!!jsonMsg.Prospective){//Init Scene
 				 if(!!wol.scene){
 					 console.log("Scene arledy initialized...");
 				 }else{
@@ -35,6 +42,12 @@ define(['require','js-cookie','detector'],function (require,Cookies,Detector) {
 
 						 sceneManager.init(jsonMsg.Prospective.fov,jsonMsg.Prospective.near,jsonMsg.Prospective.far,jsonMsg.Prospective.position,Bk);
 					 });
+				 }
+			 }else if(!!jsonMsg.Phenomens && Array.isArray(jsonMsg.Phenomens)){//Process phenomens
+				 if(!!wol.sceneManager && wol.sceneManager.isReady()){
+					 wol.phenomesHandler(jsonMsg.Phenomens);
+				 }else{
+					 setTimeout(wol.phenomesHandler.bind(this,jsonMsg.Phenomens),3000);
 				 }
 			 }else{//TODO Object & update
 				 console.log("Unsupported Message:"+event.data);

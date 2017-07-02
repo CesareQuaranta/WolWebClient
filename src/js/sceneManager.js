@@ -59,6 +59,10 @@ define(['three','stats','gui','TrackballControls'],function (THREE,Stats,dat) {
 		});
 		
 	  };
+	  
+  var initMaterialLibrary = function(){
+		wol.MaterialLib=[];
+	};
 	  return {
 	        init: function (fov,near,far,cameraPos,background) {
 	        		wol.clock = new THREE.Clock();
@@ -82,6 +86,7 @@ define(['three','stats','gui','TrackballControls'],function (THREE,Stats,dat) {
 	        		
 	        		wol.guiProp = new propDefinition();
 	        		initGUI(wol.guiProp);
+	        		initMaterialLibrary();
 	        		// CONTROLS
 	        		this.initControls();
 	    			//Stats
@@ -109,7 +114,24 @@ define(['three','stats','gui','TrackballControls'],function (THREE,Stats,dat) {
 	    			wol.renderLoop=this.renderLoop;
 	    			wol.renderLoop();
 	        },
-	        renderLoop : function () {
+	        insertAsteroid: function (id,position,material,vertices,faces) {
+	        	var geom = new THREE.Geometry(); //TODO BufferGeometry
+	        	for (var i = 0; i < vertices.length; i++) { 
+	        		geom.vertices.push(new THREE.Vector3(vertices[i].x,vertices[i].y,vertices[i].z));
+	        	}
+	        	for (var j = 0; j < faces.length; j++) { 
+	        		geom.faces.push( new THREE.Face3( faces[j].v1, faces[j].v2, faces[j].v3 ) );
+	        	}
+	        	geom.computeFaceNormals();
+	        	var newAsteroid = new THREE.Mesh( geom, new THREE.MeshNormalMaterial() );
+	        	newAsteroid.name="Asteroid-"+id;
+	        	newAsteroid.position.x=position.x;
+	        	newAsteroid.position.y=position.y;
+	        	newAsteroid.position.z=position.z;
+	        	wol.scene.add(newAsteroid);
+	        	
+	        },
+	        renderLoop : function () {//TODO Private?
 				requestAnimationFrame( wol.renderLoop );
 				var delta = wol.clock.getDelta();
 				if(!!wol.controls) wol.controls.update( delta );
@@ -120,19 +142,19 @@ define(['three','stats','gui','TrackballControls'],function (THREE,Stats,dat) {
 				wol.renderer.render(wol.scene, wol.camera);
 				wol.stats.update();
 			},
-			onWindowResize : function(ev){
+			onWindowResize : function(ev){//TODO Private?
 				wol.camera.aspect = window.innerWidth / window.innerHeight;
 				wol.camera.updateProjectionMatrix();
 				wol.renderer.setSize( window.innerWidth, window.innerHeight );
 				if(!!wol.controls) wol.controls.handleResize();
 			},
-			onMouseMove : function(ev){
+			onMouseMove : function(ev){//TODO WolControls
 				if(!!wol.WCTimer){//Annulla time x send message
 					clearInterval(wol.WCTimer);
 					wol.WCTimer=null;
 				}
 			},
-			onMouseUp : function(ev){
+			onMouseUp : function(ev){//TODO WolControls
 				if(!!wol.WCTimer){//Annulla time x send message
 					clearInterval(wol.WCTimer);
 					wol.WCTimer=null;
@@ -163,7 +185,7 @@ define(['three','stats','gui','TrackballControls'],function (THREE,Stats,dat) {
 				}
 				
 			},
-			initControls : function(){
+			initControls : function(){//TODO Private
         		wol.controls = new THREE.TrackballControls( wol.camera, wol.renderer.domElement );
     			wol.controls.rotateSpeed = 1.0;
     			wol.controls.zoomSpeed = 1.2;
@@ -174,7 +196,7 @@ define(['three','stats','gui','TrackballControls'],function (THREE,Stats,dat) {
     			wol.controls.dynamicDampingFactor = 0.15;
     			wol.controls.keys = [ 65, 83, 68 ];
 			},
-			addBackground : function(background){
+			addBackground : function(background){//TODO Private
 				var skyGeometry = new THREE.CubeGeometry( 10000, 10000, 10000 );
 				var loader = new THREE.CubeTextureLoader();
 				var textureCube = loader.load( background );
@@ -192,15 +214,15 @@ define(['three','stats','gui','TrackballControls'],function (THREE,Stats,dat) {
 				wol.Background.position.x = -1;
 				wol.scene.add( wol.Background );
 			},
-			addCameraHelper : function(){
+			addCameraHelper : function(){//TODO Private
 				wol.cameraHelper = new THREE.CameraHelper( wol.camera );
 				wol.scene.add( wol.cameraHelper );
 			},
-			addGridHelper : function(){
+			addGridHelper : function(){//TODO Private
 				wol.gridHelper = new THREE.GridHelper( 10, 10 );
 				wol.scene.add( wol.gridHelper );
 			},
-			addAxisHelper : function(){
+			addAxisHelper : function(){//TODO Private
 				wol.axisHelper = new THREE.AxisHelper(20);
 				wol.scene.add(wol.axisHelper);
 				var dir = new THREE.Vector3( 1, 2, 0 );
