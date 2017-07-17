@@ -61,7 +61,8 @@ define(['three','stats','gui','TrackballControls'],function (THREE,Stats,dat) {
 	  };
 	  
   var initMaterialLibrary = function(){
-		wol.MaterialLib=[];
+		wol.MaterialLib={};
+		wol.MaterialLib.def = new THREE.MeshNormalMaterial();
 	};
 	  return {
 	        init: function (fov,near,far,cameraPos,background) {
@@ -110,24 +111,52 @@ define(['three','stats','gui','TrackballControls'],function (THREE,Stats,dat) {
 	    			wol.renderer.domElement.addEventListener( 'mousedown', this.onMouseDown, false );
 	    			wol.renderer.domElement.addEventListener( 'mousemove', this.onMouseMove, false );
 	    			wol.renderer.domElement.addEventListener( 'mouseup', this.onMouseUp, false );
-	    			
+	    			//PhysicsProcessor
+	    			require(['simplePhysicsProcessor'],function(physicsProcessor){
+	    				wol.sceneManager.physicsProcessor=physicsProcessor;
+	    				wol.sceneManager.physicsProcessor.init();
+	    			});
 	    			wol.renderLoop=this.renderLoop;
 	    			wol.renderLoop();
 	        },
-	        insertAsteroid: function (id,position,material,vertices,faces) {
-	        	var geom = new THREE.Geometry(); //TODO BufferGeometry
+	        insertAsteroid: function (id,position,material,vertices,faces,velocity,rotation) {
+	        	/* PolyhedronGeometry test failed
+	        	var verticesOfAsteroid = [];
+	        	var indicesOfFaces = [];
+	        	//Convert Vertices
 	        	for (var i = 0; i < vertices.length; i++) { 
-	        		geom.vertices.push(new THREE.Vector3(vertices[i].x,vertices[i].y,vertices[i].z));
+	        		verticesOfAsteroid.push(vertices[i].x);
+	        		verticesOfAsteroid.push(vertices[i].y);
+	        		verticesOfAsteroid.push(vertices[i].z);
+	        	}
+	        	//Convert Faces Index
+	        	for (var j = 0; j < faces.length; j++) { 
+	        		indicesOfFaces.push( faces[j].v1);
+	        		indicesOfFaces.push( faces[j].v2);
+	        		indicesOfFaces.push( faces[j].v3);
+	        		//indicesOfFaces.
+	        	}
+	        	var asteroidGeometry = new THREE.PolyhedronGeometry( verticesOfAsteroid, indicesOfFaces, 6, 4 );*/
+	        	
+	        	var asteroidGeometry = new THREE.Geometry();
+	        	for (var i = 0; i < vertices.length; i++) { 
+	        		asteroidGeometry.vertices.push(new THREE.Vector3(vertices[i].x,vertices[i].y,vertices[i].z));
 	        	}
 	        	for (var j = 0; j < faces.length; j++) { 
-	        		geom.faces.push( new THREE.Face3( faces[j].v1, faces[j].v2, faces[j].v3 ) );
+	        		asteroidGeometry.faces.push( new THREE.Face3( faces[j].v1, faces[j].v2, faces[j].v3 ) );
 	        	}
-	        	geom.computeFaceNormals();
-	        	var newAsteroid = new THREE.Mesh( geom, new THREE.MeshNormalMaterial() );
+	        	
+	        	asteroidGeometry.computeFaceNormals();
+	        	var newAsteroid = new THREE.Mesh( asteroidGeometry,  wol.MaterialLib.def);
 	        	newAsteroid.name="Asteroid-"+id;
 	        	newAsteroid.scale.set(0.1, 0.1, 0.1);
 	        	newAsteroid.position.set(position.x,position.y,position.z);
 	        	wol.scene.add(newAsteroid);
+	        	if(!!wol.sceneManager.physicsProcessor){
+	        		wol.sceneManager.physicsProcessor.insertEntity(newAsteroid,velocity,rotation);
+	        	}else{
+	        		console.log("TODO Implementare cache temporanea");
+	        		}
 	        	
 	        },
 	        renderLoop : function () {//TODO Private?
@@ -135,6 +164,9 @@ define(['three','stats','gui','TrackballControls'],function (THREE,Stats,dat) {
 				var delta = wol.clock.getDelta();
 				if(!!wol.controls) wol.controls.update( delta );
 				if(!!wol.cameraHelper) wol.cameraHelper.update();
+				if(!!wol.sceneManager.physicsProcessor){
+					wol.sceneManager.physicsProcessor.process(delta);
+				}
 				//wol.Background.children[0].position.set(0,0,wol.camera.position.z-999);
 				//wol.cameraCube.rotation.copy( wol.camera.rotation );
 				//wol.renderer.render( wol.sceneCube, wol.cameraCube );
