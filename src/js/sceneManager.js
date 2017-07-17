@@ -125,9 +125,8 @@ define(['three','stats','gui','TrackballControls'],function (THREE,Stats,dat) {
 	        	geom.computeFaceNormals();
 	        	var newAsteroid = new THREE.Mesh( geom, new THREE.MeshNormalMaterial() );
 	        	newAsteroid.name="Asteroid-"+id;
-	        	newAsteroid.position.x=position.x;
-	        	newAsteroid.position.y=position.y;
-	        	newAsteroid.position.z=position.z;
+	        	newAsteroid.scale.set(0.1, 0.1, 0.1);
+	        	newAsteroid.position.set(position.x,position.y,position.z);
 	        	wol.scene.add(newAsteroid);
 	        	
 	        },
