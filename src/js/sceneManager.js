@@ -63,6 +63,20 @@ define(['three','stats','gui','TrackballControls'],function (THREE,Stats,dat) {
   var initMaterialLibrary = function(){
 		wol.MaterialLib={};
 		wol.MaterialLib.def = new THREE.MeshNormalMaterial();
+		
+    	var hgBump = new THREE.TextureLoader().load( "/img/bMetallic2.jpg" );
+    	var hgMap = new THREE.TextureLoader().load("/img/bMetallic.jpg");
+    	hgMap.wrapS=THREE.MirroredRepeatWrapping;
+    	hgMap.wrapT=THREE.MirroredRepeatWrapping;
+
+    	wol.MaterialLib.hgMaterial = new THREE.MeshPhongMaterial( {
+			color: 0xffffff,
+			specular: 0xffaa00,
+			shininess: 100,
+			bumpMap: hgBump,
+			bumpScale: 0.5,
+			map : hgMap
+		} );
 	};
 	  return {
 	        init: function (fov,near,far,cameraPos,background) {
@@ -72,6 +86,8 @@ define(['three','stats','gui','TrackballControls'],function (THREE,Stats,dat) {
 	        		wol.camera.position.z = 5;//cameraPos.z;
 	        		wol.camera.position.y = cameraPos.y;
 	        		wol.camera.position.x = cameraPos.x;
+	        		wol.camera.add(new THREE.PointLight( 0xffffff ));
+	        		wol.scene.add(wol.camera);
 	        		
 	        		wol.renderer = new THREE.WebGLRenderer({ alpha: true });
 	        		wol.renderer.setClearColor( 0x000000, 0 );
@@ -144,10 +160,11 @@ define(['three','stats','gui','TrackballControls'],function (THREE,Stats,dat) {
 	        	}
 	        	for (var j = 0; j < faces.length; j++) { 
 	        		asteroidGeometry.faces.push( new THREE.Face3( faces[j].v1, faces[j].v2, faces[j].v3 ) );
+	        		asteroidGeometry.faceVertexUvs[0].push([new THREE.Vector2(0, 0),new THREE.Vector2(0, 1),new THREE.Vector2(1, 1)]);
 	        	}
 	        	
 	        	asteroidGeometry.computeFaceNormals();
-	        	var newAsteroid = new THREE.Mesh( asteroidGeometry,  wol.MaterialLib.def);
+	        	var newAsteroid = new THREE.Mesh( asteroidGeometry,  wol.MaterialLib.hgMaterial);
 	        	newAsteroid.name="Asteroid-"+id;
 	        	newAsteroid.scale.set(0.1, 0.1, 0.1);
 	        	newAsteroid.position.set(position.x,position.y,position.z);
@@ -160,18 +177,21 @@ define(['three','stats','gui','TrackballControls'],function (THREE,Stats,dat) {
 	        	
 	        },
 	        renderLoop : function () {//TODO Private?
-				requestAnimationFrame( wol.renderLoop );
-				var delta = wol.clock.getDelta();
-				if(!!wol.controls) wol.controls.update( delta );
-				if(!!wol.cameraHelper) wol.cameraHelper.update();
-				if(!!wol.sceneManager.physicsProcessor){
-					wol.sceneManager.physicsProcessor.process(delta);
-				}
-				//wol.Background.children[0].position.set(0,0,wol.camera.position.z-999);
-				//wol.cameraCube.rotation.copy( wol.camera.rotation );
-				//wol.renderer.render( wol.sceneCube, wol.cameraCube );
-				wol.renderer.render(wol.scene, wol.camera);
-				wol.stats.update();
+	        	var fps=35;
+	        	 setTimeout(function() {
+					requestAnimationFrame( wol.renderLoop );
+					var delta = wol.clock.getDelta();
+					if(!!wol.controls) wol.controls.update( delta );
+					if(!!wol.cameraHelper) wol.cameraHelper.update();
+					if(!!wol.sceneManager.physicsProcessor){
+						wol.sceneManager.physicsProcessor.process(delta);
+					}
+					//wol.Background.children[0].position.set(0,0,wol.camera.position.z-999);
+					//wol.cameraCube.rotation.copy( wol.camera.rotation );
+					//wol.renderer.render( wol.sceneCube, wol.cameraCube );
+					wol.renderer.render(wol.scene, wol.camera);
+					wol.stats.update();
+	        	 },1000 / fps);
 			},
 			onWindowResize : function(ev){//TODO Private?
 				wol.camera.aspect = window.innerWidth / window.innerHeight;
@@ -204,6 +224,31 @@ define(['three','stats','gui','TrackballControls'],function (THREE,Stats,dat) {
 						var d = wol.raycaster.ray.direction.clone();
 						d.multiplyScalar(3);
 						p.add(d);
+						
+						/*Create cube camera
+						var cubeCamera = new THREE.CubeCamera( 1, 100000, 128 );
+						wol.scene.add( cubeCamera );
+						var chromeMaterial = new THREE.MeshLambertMaterial( { color: 0xffffff, envMap: cubeCamera.renderTarget } );
+						var materialPhongCube = new THREE.MeshPhongMaterial( { shininess: 50, color: 0xffffff, specular: 0x999999, envMap: cubeCamera.renderTarget.texture } );
+
+						var sphereGeometry = new THREE.SphereGeometry( 100, 64, 32 );
+						var car = new Mesh( carGeometry, chromeMaterial );
+						scene.add( car );
+
+						//Update the render target cube
+						car.setVisible( false );
+						cubeCamera.position.copy( car.position );
+						cubeCamera.updateCubeMap( renderer, scene );
+
+						//Render the scene
+						car.setVisible( true );
+						
+						// render cube map
+						mesh.visible = false;
+						cubeCamera.updateCubeMap( renderer, scene );
+						mesh.visible = true;
+						 */
+						
 						wol.WCMagnitudo=1;
 						wol.WCTimer=setInterval(function() {
 							var command={type:"Gravity",mag:wol.WCMagnitudo++,pos:p};
