@@ -77,6 +77,8 @@ define(['three','stats','gui','TrackballControls'],function (THREE,Stats,dat) {
 			bumpScale: 0.5,
 			map : hgMap
 		} );
+    	
+    	wol.MaterialLib.chromeMaterial = new THREE.MeshBasicMaterial( { color: 0xffffff, envMap: wol.cubeCamera.renderTarget.texture } );
 	};
 	  return {
 	        init: function (fov,near,far,cameraPos,background) {
@@ -89,6 +91,11 @@ define(['three','stats','gui','TrackballControls'],function (THREE,Stats,dat) {
 	        		wol.camera.add(new THREE.PointLight( 0xffffff ));
 	        		wol.scene.add(wol.camera);
 	        		
+	        		//Create cube camera
+					wol.cubeCamera = new THREE.CubeCamera( near, 100000, 128 );
+					wol.cubeCamera.renderTarget.minFilter = THREE.LinearMipMapLinearFilter; // mipmap filter
+					wol.scene.add( wol.cubeCamera );
+					
 	        		wol.renderer = new THREE.WebGLRenderer({ alpha: true });
 	        		wol.renderer.setClearColor( 0x000000, 0 );
 	        		wol.renderer.setSize( window.innerWidth, window.innerHeight );
@@ -104,6 +111,12 @@ define(['three','stats','gui','TrackballControls'],function (THREE,Stats,dat) {
 	        		wol.guiProp = new propDefinition();
 	        		initGUI(wol.guiProp);
 	        		initMaterialLibrary();
+	        		
+	        		var distorsionGeometry = new THREE.SphereGeometry( 0.3, 10, 10 );
+					wol.distorsion = new THREE.Mesh( distorsionGeometry, wol.MaterialLib.chromeMaterial );
+					wol.distorsion.visible=false;
+					wol.scene.add(wol.distorsion);
+					
 	        		// CONTROLS
 	        		this.initControls();
 	    			//Stats
@@ -189,6 +202,7 @@ define(['three','stats','gui','TrackballControls'],function (THREE,Stats,dat) {
 					//wol.Background.children[0].position.set(0,0,wol.camera.position.z-999);
 					//wol.cameraCube.rotation.copy( wol.camera.rotation );
 					//wol.renderer.render( wol.sceneCube, wol.cameraCube );
+					wol.cubeCamera.updateCubeMap( wol.renderer, wol.scene );
 					wol.renderer.render(wol.scene, wol.camera);
 					wol.stats.update();
 	        	 },1000 / fps);
@@ -210,6 +224,7 @@ define(['three','stats','gui','TrackballControls'],function (THREE,Stats,dat) {
 					clearInterval(wol.WCTimer);
 					wol.WCTimer=null;
 				}
+				wol.distorsion.visible=false;
 			},
 			onMouseDown : function(ev){//TODO spostare in controller appropriato WolControls?
 				ev.preventDefault();
@@ -225,10 +240,15 @@ define(['three','stats','gui','TrackballControls'],function (THREE,Stats,dat) {
 						d.multiplyScalar(3);
 						p.add(d);
 						
-						/*Create cube camera
-						var cubeCamera = new THREE.CubeCamera( 1, 100000, 128 );
-						wol.scene.add( cubeCamera );
-						var chromeMaterial = new THREE.MeshLambertMaterial( { color: 0xffffff, envMap: cubeCamera.renderTarget } );
+						wol.cubeCamera.position.copy( wol.camera );
+						
+						wol.MaterialLib.chromeMaterial.envMap= wol.cubeCamera.renderTarget.texture;
+						wol.MaterialLib.chromeMaterial.needsUpdate = true;
+						wol.distorsion.position.copy(p);
+						wol.distorsion.visible=true;
+						
+						/*
+						var 
 						var materialPhongCube = new THREE.MeshPhongMaterial( { shininess: 50, color: 0xffffff, specular: 0x999999, envMap: cubeCamera.renderTarget.texture } );
 
 						var sphereGeometry = new THREE.SphereGeometry( 100, 64, 32 );
@@ -238,7 +258,7 @@ define(['three','stats','gui','TrackballControls'],function (THREE,Stats,dat) {
 						//Update the render target cube
 						car.setVisible( false );
 						cubeCamera.position.copy( car.position );
-						cubeCamera.updateCubeMap( renderer, scene );
+						
 
 						//Render the scene
 						car.setVisible( true );
