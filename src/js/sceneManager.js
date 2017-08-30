@@ -82,7 +82,8 @@ define(['three','stats','gui','TrackballControls'],function (THREE,Stats,dat) {
 	};
 	  return {
 	        init: function (fov,near,far,cameraPos,background) {
-	        		wol.lastServerPos=cameraPos;
+	        		wol.lastServerPos = cameraPos;
+	        		wol.lastServerPos.t = Date.now();
 	        		wol.clock = new THREE.Clock();
 	        		wol.scene = new THREE.Scene();
 	        		wol.camera = new THREE.PerspectiveCamera( fov, window.innerWidth/window.innerHeight, near, 10000 );
@@ -248,7 +249,7 @@ define(['three','stats','gui','TrackballControls'],function (THREE,Stats,dat) {
 				}
 				//Send poition
 				//TODO check last send time
-				if(((wol.lastServerPos.t - Date.now()) > 30000) && ((wol.lastServerPos.x != wol.camera.position.x) || (wol.lastServerPos.y != wol.camera.position.y) || (wol.lastServerPos.z != wol.camera.position.z))){
+				if(((Date.now() - wol.lastServerPos.t) > 30000) && ((wol.lastServerPos.x != wol.camera.position.x) || (wol.lastServerPos.y != wol.camera.position.y) || (wol.lastServerPos.z != wol.camera.position.z))){
 					var command={type:"Position",pos:wol.camera.position};
 					var commandMessage="xC:"+JSON.stringify(command);
 					wol.wsConnection.send(commandMessage);
