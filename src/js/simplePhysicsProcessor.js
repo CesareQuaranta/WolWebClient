@@ -1,4 +1,4 @@
-define([],function () {
+define(['three'], function(THREE) {
 	'use strict';
 	  return {
 		  	
@@ -29,12 +29,15 @@ define([],function () {
 	        			var curQuaternion = curEntity.quaternion;
 	        			var aQuaternion = new THREE.Quaternion();
 	        			var ax = new THREE.Vector3(curRotation.ax.x,curRotation.ax.y,curRotation.ax.z);
-	        			aQuaternion.setFromAxisAngle(ax, curRotation.radians*timestamp);//imposta inizialmente in base all'ora del giorno
+	        			aQuaternion.setFromAxisAngle(ax, curRotation.r*timestamp);//imposta inizialmente in base all'ora del giorno
 
 	        			curQuaternion.multiplyQuaternions(aQuaternion, curQuaternion);
 	        			curQuaternion.normalize();
 	        			
 	        			curEntity.setRotationFromQuaternion(curQuaternion);
+	        		}
+	        		if(typeof curEntity.run === 'function'){//Runnable entity
+	        			curEntity.run(timestamp);
 	        		}
 	        	},this);
 			}

@@ -86,7 +86,7 @@ define(['three','stats','gui','TrackballControls'],function (THREE,Stats,dat) {
 	        		wol.clock = new THREE.Clock();
 	        		wol.scene = new THREE.Scene();
 	        		wol.camera = new THREE.PerspectiveCamera( fov, window.innerWidth/window.innerHeight, near, 10000 );
-	        		wol.camera.position.z = 5;//cameraPos.z;
+	        		wol.camera.position.z = 30;//cameraPos.z;
 	        		wol.camera.position.y = cameraPos.y;
 	        		wol.camera.position.x = cameraPos.x;
 	        		wol.camera.add(new THREE.PointLight( 0xffffff ));
@@ -141,8 +141,12 @@ define(['three','stats','gui','TrackballControls'],function (THREE,Stats,dat) {
 	    			wol.renderer.domElement.addEventListener( 'mousedown', this.onMouseDown, false );
 	    			wol.renderer.domElement.addEventListener( 'mousemove', this.onMouseMove, false );
 	    			wol.renderer.domElement.addEventListener( 'mouseup', this.onMouseUp, false );
-	    			/*var backgroundHandle = window.requestIdleCallback(function(){},{timeout:30000});
-	    			window.cancelIdleCallback(backgroundHandle);*/
+	    			
+	    			/*TODO Background handler
+	    			 * var backgroundHandle = window.requestIdleCallback(function(){},{timeout:30000});
+	    			 *window.cancelIdleCallback(backgroundHandle);
+	    			*/
+	    			
 	    			//PhysicsProcessor
 	    			require(['simplePhysicsProcessor'],function(physicsProcessor){
 	    				wol.sceneManager.physicsProcessor=physicsProcessor;
@@ -151,6 +155,21 @@ define(['three','stats','gui','TrackballControls'],function (THREE,Stats,dat) {
 	    			wol.renderLoop=this.renderLoop;
 	    			wol.renderLoop();
 	        },
+	        insertHydrogenBubble: function (id,position,size,velocity,rotation) {
+	        	require(['HydrogenBubble'],function(HydrogenBubble){
+	        		var newBubble = new HydrogenBubble(size);
+	        		newBubble.name="HB-"+id;
+	        		newBubble.position.set(position.x,position.y,position.z);
+		        	wol.scene.add(newBubble);
+		        	if(!!wol.sceneManager.physicsProcessor){
+		        		wol.sceneManager.physicsProcessor.insertEntity(newBubble,velocity,rotation);
+		        		console.log("New HydrogenBubble successfull insert");
+		        	}else{
+		        		console.log("TODO Implementare cache temporanea");
+		        		}
+	        	});
+	        },
+	        //Deprecated
 	        insertAsteroid: function (id,position,material,vertices,faces,velocity,rotation) {
 	        	/* PolyhedronGeometry test failed
 	        	var verticesOfAsteroid = [];
@@ -229,7 +248,7 @@ define(['three','stats','gui','TrackballControls'],function (THREE,Stats,dat) {
 				}
 				//Send poition
 				//TODO check last send time
-				if(((wol.lastServerPos.t - Date.now()) > 30000) && (wol.lastServerPos.x != wol.camera.position.x) || (wol.lastServerPos.y != wol.camera.position.y) || (wol.lastServerPos.z != wol.camera.position.z)){
+				if(((wol.lastServerPos.t - Date.now()) > 30000) && ((wol.lastServerPos.x != wol.camera.position.x) || (wol.lastServerPos.y != wol.camera.position.y) || (wol.lastServerPos.z != wol.camera.position.z))){
 					var command={type:"Position",pos:wol.camera.position};
 					var commandMessage="xC:"+JSON.stringify(command);
 					wol.wsConnection.send(commandMessage);
@@ -259,35 +278,14 @@ define(['three','stats','gui','TrackballControls'],function (THREE,Stats,dat) {
 						var d = wol.raycaster.ray.direction.clone();
 						d.multiplyScalar(3);
 						p.add(d);
-						
+						/*
 						wol.cubeCamera.position.copy( wol.camera );
 						
 						wol.MaterialLib.chromeMaterial.envMap= wol.cubeCamera.renderTarget.texture;
 						wol.MaterialLib.chromeMaterial.needsUpdate = true;
 						wol.distorsion.position.copy(p);
 						wol.distorsion.visible=true;
-						
-						/*
-						var 
-						var materialPhongCube = new THREE.MeshPhongMaterial( { shininess: 50, color: 0xffffff, specular: 0x999999, envMap: cubeCamera.renderTarget.texture } );
-
-						var sphereGeometry = new THREE.SphereGeometry( 100, 64, 32 );
-						var car = new Mesh( carGeometry, chromeMaterial );
-						scene.add( car );
-
-						//Update the render target cube
-						car.setVisible( false );
-						cubeCamera.position.copy( car.position );
-						
-
-						//Render the scene
-						car.setVisible( true );
-						
-						// render cube map
-						mesh.visible = false;
-						cubeCamera.updateCubeMap( renderer, scene );
-						mesh.visible = true;
-						 */
+						*/
 						
 						wol.WCMagnitudo=1;
 						wol.WCTimer=setInterval(function() {
@@ -335,13 +333,13 @@ define(['three','stats','gui','TrackballControls'],function (THREE,Stats,dat) {
 				wol.scene.add( wol.cameraHelper );
 			},
 			addGridHelper : function(){//TODO Private
-				wol.gridHelper = new THREE.GridHelper( 10, 10 );
+				wol.gridHelper = new THREE.GridHelper( 100, 100 );
 				wol.scene.add( wol.gridHelper );
 			},
 			addAxisHelper : function(){//TODO Private
 				wol.axisHelper = new THREE.AxisHelper(20);
 				wol.scene.add(wol.axisHelper);
-				var dir = new THREE.Vector3( 1, 2, 0 );
+				var dir = new THREE.Vector3( 10, 20, 0 );
 				//normalize the direction vector (convert to vector of length 1)
 				dir.normalize();
 				wol.arrowHelper = new THREE.ArrowHelper( dir, new THREE.Vector3( 0, 0, 0 ), 1, 0xffff00 );

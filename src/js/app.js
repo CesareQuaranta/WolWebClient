@@ -19,8 +19,10 @@ define(['require','js-cookie','detector'],function (require,Cookies,Detector) {
 	};
 	wol.phenomesHandler=function(phenomens){
 		phenomens.forEach(function processPhenomen(phenomen, i) {
-		    if(phenomen.type === "A"){
+		    if(phenomen.type === "A"){//Deprecated
 		    	wol.sceneManager.insertAsteroid(phenomen.ID,phenomen.position,phenomen.materiaID,phenomen.geometry.vertices,phenomen.geometry.faces,{x:0,y:0,z:0},phenomen.rotation);
+		    }else if(phenomen.type === "HB"){
+		    	wol.sceneManager.insertHydrogenBubble(phenomen.ID,phenomen.position,phenomen.geometry.radius,phenomen.velocity,phenomen.rotation);
 		    }
 		},this);
 	};

@@ -19,6 +19,12 @@ requirejs.config({
     	trackballControls:{
     		deps:['three']
     	},
+    	hidrogenBubble:{
+    		deps:['three']
+    	},
+    	simplePhysicsProcessor:{
+    		deps:['three']
+    	},
     	parallasse:{
     		deps:['jquery']
     	},
