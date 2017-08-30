@@ -1,9 +1,9 @@
-define(['handlebars'],function (Handlebars) {
+define(['module','handlebars'],function (module, Handlebars) {
 	function internalSubmit(e){
 		 e.preventDefault();
 		 $.ajax({
 			  type: 'POST',
-			  url: '//power4.wol.net:3001/login',
+			  url : module.config().url,
 			  data: $("form").serialize(), 
 			  //or your custom data either as object {foo: "bar", ...} or foo=bar&...
 			  success: function(response) {

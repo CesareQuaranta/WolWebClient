@@ -28,6 +28,11 @@ requirejs.config({
     	app:{
     		deps:['jquery','js-cookie']
     	}
+    },
+    config : {
+    	login:{
+    		 url: '//localhost.wol.net:3030/login'//'//power4.wol.net:3001/login'
+    	}
     }
 });
 //Start loading the main app file. Put all of
