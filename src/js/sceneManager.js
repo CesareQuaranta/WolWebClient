@@ -82,6 +82,7 @@ define(['three','stats','gui','TrackballControls'],function (THREE,Stats,dat) {
 	};
 	  return {
 	        init: function (fov,near,far,cameraPos,background) {
+	        		wol.lastServerPos=cameraPos;
 	        		wol.clock = new THREE.Clock();
 	        		wol.scene = new THREE.Scene();
 	        		wol.camera = new THREE.PerspectiveCamera( fov, window.innerWidth/window.innerHeight, near, 10000 );
@@ -93,7 +94,7 @@ define(['three','stats','gui','TrackballControls'],function (THREE,Stats,dat) {
 	        		
 	        		//Create cube camera
 					wol.cubeCamera = new THREE.CubeCamera( near, 100000, 128 );
-					wol.cubeCamera.renderTarget.minFilter = THREE.LinearMipMapLinearFilter; // mipmap filter
+					wol.cubeCamera.renderTarget.texture.minFilter = THREE.LinearMipMapLinearFilter; // mipmap filter
 					wol.scene.add( wol.cubeCamera );
 					
 	        		wol.renderer = new THREE.WebGLRenderer({ alpha: true });
@@ -140,6 +141,8 @@ define(['three','stats','gui','TrackballControls'],function (THREE,Stats,dat) {
 	    			wol.renderer.domElement.addEventListener( 'mousedown', this.onMouseDown, false );
 	    			wol.renderer.domElement.addEventListener( 'mousemove', this.onMouseMove, false );
 	    			wol.renderer.domElement.addEventListener( 'mouseup', this.onMouseUp, false );
+	    			/*var backgroundHandle = window.requestIdleCallback(function(){},{timeout:30000});
+	    			window.cancelIdleCallback(backgroundHandle);*/
 	    			//PhysicsProcessor
 	    			require(['simplePhysicsProcessor'],function(physicsProcessor){
 	    				wol.sceneManager.physicsProcessor=physicsProcessor;
@@ -200,9 +203,14 @@ define(['three','stats','gui','TrackballControls'],function (THREE,Stats,dat) {
 						wol.sceneManager.physicsProcessor.process(delta);
 					}
 					//wol.Background.children[0].position.set(0,0,wol.camera.position.z-999);
-					//wol.cameraCube.rotation.copy( wol.camera.rotation );
 					//wol.renderer.render( wol.sceneCube, wol.cameraCube );
-					wol.cubeCamera.updateCubeMap( wol.renderer, wol.scene );
+					if(!!wol.distorsion.visible){//TODO generalize 4 all mesh with cubeCamera reflection
+						wol.cubeCamera.rotation.copy( wol.camera.rotation );
+						wol.cubeCamera.position.copy( wol.camera.position );
+						wol.distorsion.visible=false;
+						wol.cubeCamera.updateCubeMap( wol.renderer, wol.scene );
+						wol.distorsion.visible=true;
+					}
 					wol.renderer.render(wol.scene, wol.camera);
 					wol.stats.update();
 	        	 },1000 / fps);
@@ -214,9 +222,21 @@ define(['three','stats','gui','TrackballControls'],function (THREE,Stats,dat) {
 				if(!!wol.controls) wol.controls.handleResize();
 			},
 			onMouseMove : function(ev){//TODO WolControls
-				if(!!wol.WCTimer){//Annulla time x send message
+				//Annulla time x send message
+				if(!!wol.WCTimer){
 					clearInterval(wol.WCTimer);
 					wol.WCTimer=null;
+				}
+				//Send poition
+				//TODO check last send time
+				if(((wol.lastServerPos.t - Date.now()) > 30000) && (wol.lastServerPos.x != wol.camera.position.x) || (wol.lastServerPos.y != wol.camera.position.y) || (wol.lastServerPos.z != wol.camera.position.z)){
+					var command={type:"Position",pos:wol.camera.position};
+					var commandMessage="xC:"+JSON.stringify(command);
+					wol.wsConnection.send(commandMessage);
+					wol.lastServerPos.x = wol.camera.position.x;
+					wol.lastServerPos.y = wol.camera.position.y;
+					wol.lastServerPos.z = wol.camera.position.z;
+					wol.lastServerPos.t = Date.now();
 				}
 			},
 			onMouseUp : function(ev){//TODO WolControls
@@ -284,9 +304,9 @@ define(['three','stats','gui','TrackballControls'],function (THREE,Stats,dat) {
 			initControls : function(){//TODO Private
         		wol.controls = new THREE.TrackballControls( wol.camera, wol.renderer.domElement );
     			wol.controls.rotateSpeed = 1.0;
-    			wol.controls.zoomSpeed = 1.2;
+    			wol.controls.zoomSpeed = 0;//1.2;
     			wol.controls.panSpeed = 0.8;
-    			wol.controls.noZoom = false;
+    			wol.controls.noZoom = true;
     			wol.controls.noPan = false;
     			wol.controls.staticMoving = false;
     			wol.controls.dynamicDampingFactor = 0.15;
