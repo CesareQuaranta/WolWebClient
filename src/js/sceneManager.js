@@ -215,7 +215,6 @@ define(['three','stats','gui','TrackballControls'],function (THREE,Stats,dat) {
 	        renderLoop : function () {//TODO Private?
 	        	var fps=35;
 	        	 setTimeout(function() {
-					requestAnimationFrame( wol.renderLoop );
 					var delta = wol.clock.getDelta();
 					if(!!wol.controls) wol.controls.update( delta );
 					if(!!wol.cameraHelper) wol.cameraHelper.update();
@@ -231,6 +230,7 @@ define(['three','stats','gui','TrackballControls'],function (THREE,Stats,dat) {
 						wol.cubeCamera.updateCubeMap( wol.renderer, wol.scene );
 						wol.distorsion.visible=true;
 					}
+					requestAnimationFrame( wol.renderLoop );
 					wol.renderer.render(wol.scene, wol.camera);
 					wol.stats.update();
 	        	 },1000 / fps);
